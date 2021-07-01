@@ -112,7 +112,7 @@ TEST_CASE("Digits") {
     for (uint32_t base = 2; base < 20; ++base) {
         REQUIRE(aba::BigInt(0).digits(base) == 1);
         for (uint32_t exp = 1; exp < 10; ++exp) {
-            REQUIRE(aba::BigInt(1 * static_cast<uint32_t>(std::pow(base, exp))).digits(base) == exp + 1);
+            REQUIRE(aba::BigInt(1 * static_cast<uint64_t>(std::pow(base, exp))).digits(base) == exp + 1);
         }
     }
 }
