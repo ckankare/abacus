@@ -1,3 +1,5 @@
+[![Status](https://github.com/ckankare/abacus/workflows/ubuntu.yml/badge.svg)](https://github.com/ckankare/abacus)
+
 Abacus
 
 ```bash
