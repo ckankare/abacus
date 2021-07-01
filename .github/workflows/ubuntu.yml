@@ -11,6 +11,12 @@ jobs:
         build_type: ["Debug", "Release"]
         compiler: ["g++-10", "clang++-11"]
     steps:
+      # Remove apt repos that are known to break from time to time
+      # See https://github.com/actions/virtual-environments/issues/323
+      - name: Remove broken apt repos [Ubuntu]
+        run: |
+          for apt_file in `grep -lr microsoft /etc/apt/sources.list.d/`; do sudo rm $apt_file; done
+
       - name: Install dependencies
         run: ${{ env.APT_COMMAND }}
 
@@ -39,6 +45,11 @@ jobs:
         build_type: ["Debug", "Release"]
         compiler: ["g++-10", "clang++-11"]
     steps:
+      # Remove apt repos that are known to break from time to time
+      # See https://github.com/actions/virtual-environments/issues/323
+      - name: Remove broken apt repos [Ubuntu]
+        run: |
+          for apt_file in `grep -lr microsoft /etc/apt/sources.list.d/`; do sudo rm $apt_file; done
       - name: Install dependencies
         run: ${{ env.APT_COMMAND }}
 
