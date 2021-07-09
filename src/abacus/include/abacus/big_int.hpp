@@ -400,7 +400,10 @@ public:
     }
 
     static constexpr BigInt pow(const BigInt& lhs, uint32_t exponent) {
-        return ((exponent % 2) == 0 ? BigInt(1) : BigInt(-1)) * BigInt(BigUInt::pow(BigUInt(lhs), exponent));
+        // TODO pow should be part of functions, but how could it then be used here?
+        // Start to move stuff to a unit file?
+        return ((exponent % 2) == 0 || !lhs.is_negative() ? BigInt(1) : BigInt(-1)) *
+               BigInt(BigUInt::pow(BigUInt(lhs), exponent));
     }
 
     uint32_t digits(uint32_t base) const {

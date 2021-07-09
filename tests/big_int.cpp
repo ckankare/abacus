@@ -1,9 +1,8 @@
+#include <string>
+
 #include <catch2/catch_test_macros.hpp>
 
 #include <abacus/big_int.hpp>
-
-#include <iomanip>
-#include <iostream>
 
 namespace {
 const std::string min_str = "-170141183460469231731687303715884105728";
@@ -11,9 +10,15 @@ const std::string max_str = "170141183460469231731687303715884105727";
 } // namespace
 
 TEST_CASE("Division/Remainder function") {
-    auto a = aba::BigInt(1);
-    auto b = aba::BigInt(1);
+    auto a = aba::BigInt(0);
+    auto b = aba::BigInt(2);
     auto [result, rem] = aba::BigInt::division(a, b);
+    REQUIRE(result == 0);
+    REQUIRE(rem == 0);
+
+    a = aba::BigInt(1);
+    b = aba::BigInt(1);
+    std::tie(result, rem) = aba::BigInt::division(a, b);
     REQUIRE(result == 1);
     REQUIRE(rem == 0);
 
@@ -186,6 +191,9 @@ TEST_CASE("Subtraction") {
 }
 
 TEST_CASE("Multiplication") {
+    REQUIRE((aba::BigInt(0) * aba::BigInt(7)).to_string() == "0");
+    REQUIRE((aba::BigInt(1) * aba::BigInt(313488544)).to_string() == "313488544");
+
     REQUIRE((aba::BigInt(50) * aba::BigInt(7)).to_double() == 350.0);
     REQUIRE((aba::BigInt(-50) * aba::BigInt(7)).to_double() == -350.0);
     REQUIRE((aba::BigInt(50) * aba::BigInt(-7)).to_double() == -350.0);
@@ -247,7 +255,19 @@ TEST_CASE("Comparisons") {
     REQUIRE(aba::BigInt(3'789'840'498'351) > aba::BigInt(-3'789'840'498'350));
     REQUIRE(aba::BigInt(3'789'840'498'351) > aba::BigInt(-42));
 
+    REQUIRE(aba::BigInt::from_string("53387484038438408480843484") ==
+            aba::BigInt::from_string("53387484038438408480843484"));
+    REQUIRE(aba::BigInt::from_string("53387484038438408480843484") !=
+            aba::BigInt::from_string("53387484038438408480843485"));
+
     REQUIRE(aba::BigInt::min() < aba::BigInt::max());
     REQUIRE(aba::BigInt::min() < -aba::BigInt::max());
     REQUIRE(aba::BigInt::min() == -aba::BigInt::max() - aba::BigInt(1));
+
+    REQUIRE(aba::BigInt::max() == aba::BigInt::max());
+}
+
+TEST_CASE("From string") {
+    REQUIRE(aba::BigInt::from_string("-170141183460469231731687303715884105728") == aba::BigInt::min());
+    REQUIRE(aba::BigInt::from_string("170141183460469231731687303715884105727") == aba::BigInt::max());
 }
