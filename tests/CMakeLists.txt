@@ -2,6 +2,7 @@ set(SOURCES
     tests.cpp
     big_int.cpp
     big_int_functions.cpp
+    number.cpp
 )
 
 add_executable(tests ${SOURCES})

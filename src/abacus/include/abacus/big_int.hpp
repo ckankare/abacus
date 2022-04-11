@@ -8,6 +8,26 @@
 
 namespace aba {
 
+template <typename T>
+constexpr T pow(T exp, T power) {
+    if (std::is_constant_evaluated()) {
+        if (exp == 0) {
+            return static_cast<T>(1);
+        }
+        if (power < 0) {
+            return static_cast<T>(1) / aba::pow(exp, -power);
+        }
+        return exp * aba::pow(exp, power - 1);
+    } else {
+        if constexpr (std::is_integral_v<T>) {
+            if (exp == 2 && power > 0) {
+                return 1 << power;
+            }
+        }
+        return static_cast<T>(std::pow<T>(exp, power)); // TODO How to avoid overflow?
+    }
+}
+
 class BigInt;
 
 class BigUInt {
@@ -263,7 +283,7 @@ public:
     static constexpr BigInt min() {
         BigInt result(0);
 
-        result.m_data[3] = 1 << 31;
+        result.m_data[3] = 1u << 31;
 
         return result;
     }
@@ -461,13 +481,15 @@ public:
         return result;
     }
 
-    long double to_double() const {
+    constexpr long double to_double() const {
         long double result = 0;
         for (std::size_t i = 0; i < m_data.size(); ++i) {
             if (is_negative()) {
-                result += static_cast<long double>(static_cast<uint32_t>(~m_data[i])) * std::pow(2, 32 * i);
+                result += static_cast<long double>(static_cast<uint32_t>(~m_data[i])) *
+                          aba::pow<long double>(2.0, static_cast<long double>(32 * i));
             } else {
-                result += static_cast<long double>(m_data[i]) * std::pow(2, 32 * i);
+                result +=
+                    static_cast<long double>(m_data[i]) * aba::pow<long double>(2.0, static_cast<long double>(32 * i));
             }
         }
 
