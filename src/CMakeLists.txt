@@ -4,6 +4,7 @@ set(SOURCES
 
 add_subdirectory(common)
 add_subdirectory(abacus)
+add_subdirectory(ascript)
 
 add_executable(abacus ${SOURCES})
 
@@ -16,4 +17,4 @@ target_compile_options(abacus PRIVATE
 
 set_target_properties(abacus PROPERTIES CXX_EXTENSIONS OFF)
 
-target_link_libraries(abacus PRIVATE libabacus fmt::fmt)
+target_link_libraries(abacus PRIVATE libabacus libascript fmt::fmt)
