@@ -37,7 +37,7 @@ public:
     template <std::size_t N>
     std::optional<Token> next_if_any(const std::array<TokenType, N>& token_types) {
         auto token = next();
-        if (std::any_of(token_types.begin(), token_types.end(), [&](auto type) { return token.type == type; })) {
+        if (std::any_of(token_types.begin(), token_types.end(), [&](auto type) { return token.type() == type; })) {
             return token;
         } else {
             // Push back to stack.
