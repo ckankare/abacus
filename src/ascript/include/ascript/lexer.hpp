@@ -15,6 +15,13 @@
 
 namespace asc {
 
+template <typename... Ts>
+constexpr std::pair<std::array<char, sizeof...(Ts)>, TokenType> make_symbol(TokenType token, Ts... chars) {
+    static_assert(utils::are_same_v<Ts..., char>, "Must be chars!");
+    static_assert(sizeof...(Ts) > 1, "Must contain at least 2 chars!");
+    return {utils::make_array(chars...), token};
+}
+
 class Scanner;
 class Lexer {
 public:
@@ -89,18 +96,10 @@ public:
         m_stack.push_back(std::move(token));
     }
 
-    template <typename... Ts>
-    static constexpr std::pair<std::array<char, sizeof...(Ts)>, TokenType> make_symbol(TokenType token, Ts... chars) {
-        static_assert(utils::are_same_v<Ts..., char>, "Must be chars!");
-        static_assert(sizeof...(Ts) > 1, "Must contain at least 2 chars!");
-        return {utils::make_array(chars...), token};
-    }
-
     static constexpr std::array<std::pair<std::array<char, 2>, TokenType>, 6> long_symbols = {
         make_symbol(TokenType::GreaterEqual, '>', '='), make_symbol(TokenType::LessEqual, '<', '='),
         make_symbol(TokenType::And, '&', '&'),          make_symbol(TokenType::Or, '|', '|'),
-        make_symbol(TokenType::RightArrow, '=', '>'),
-        make_symbol(TokenType::Equals, '=', '='),
+        make_symbol(TokenType::RightArrow, '=', '>'),   make_symbol(TokenType::Equals, '=', '='),
     };
 
     static constexpr std::array<std::pair<char, TokenType>, 14> symbols = {{
