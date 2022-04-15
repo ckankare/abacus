@@ -1,4 +1,5 @@
 set(SOURCES
+    src/lexer.cpp
     src/scanner.cpp
 )
 

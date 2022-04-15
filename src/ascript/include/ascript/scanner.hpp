@@ -14,7 +14,7 @@ public:
     character_t next();
     std::optional<character_t> next_if(char character);
     bool next_is(char character) const;
-    bool next_is(const std::string_view str) const;
+    bool next_is(std::string_view str) const;
     std::optional<char> peek() const;
     std::optional<std::string_view> peek(std::size_t count) const;
     bool has_next() const;

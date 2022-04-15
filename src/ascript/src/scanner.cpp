@@ -29,7 +29,7 @@ bool Scanner::next_is(char character) const {
     return m_src[m_next] == character;
 }
 
-bool Scanner::next_is(const std::string_view str) const {
+bool Scanner::next_is(std::string_view str) const {
     if (m_next + str.length() - 1 >= m_src.length()) {
         return false;
     }
