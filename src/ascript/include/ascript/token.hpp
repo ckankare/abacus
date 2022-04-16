@@ -1,8 +1,12 @@
 #pragma once
 
 #include <algorithm>
+#include <ostream>
 
 #include <common/meta.hpp>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 namespace asc {
 enum class TokenType {
@@ -48,6 +52,77 @@ enum class TokenType {
     EndOfStream,
 };
 
+constexpr std::string_view to_string(TokenType type) {
+    switch (type) {
+    case TokenType::If:
+        return "If";
+    case TokenType::Then:
+        return "Then";
+    case TokenType::Else:
+        return "Else";
+    case TokenType::Return:
+        return "Return";
+    case TokenType::Function:
+        return "Function";
+    case TokenType::Assign:
+        return "Assign";
+    case TokenType::Literal:
+        return "Literal";
+    case TokenType::Identifier:
+        return "Identifier";
+    case TokenType::StringLiteral:
+        return "StringLiteral";
+    case TokenType::Equals:
+        return "Equals";
+    case TokenType::Plus:
+        return "Plus";
+    case TokenType::Minus:
+        return "Minus";
+    case TokenType::Multiplication:
+        return "Multiplication";
+    case TokenType::Division:
+        return "Division";
+    case TokenType::Less:
+        return "Less";
+    case TokenType::LessEqual:
+        return "LessEqual";
+    case TokenType::Greater:
+        return "Greater";
+    case TokenType::GreaterEqual:
+        return "GreaterEqual";
+    case TokenType::Exclamation:
+        return "Exclamation";
+    case TokenType::Comma:
+        return "Comma";
+    case TokenType::Semicolon:
+        return "Semicolon";
+    case TokenType::At:
+        return "At";
+    case TokenType::DollarSign:
+        return "DollarSign";
+    case TokenType::LeftCurly:
+        return "LeftCurly";
+    case TokenType::RightCurly:
+        return "RightCurly";
+    case TokenType::LeftParenthesis:
+        return "LeftParenthesis";
+    case TokenType::RightParenthesis:
+        return "RightParenthesis";
+    case TokenType::RightArrow:
+        return "RightArrow";
+    case TokenType::And:
+        return "And";
+    case TokenType::Or:
+        return "Or";
+    case TokenType::BitwiseAnd:
+        return "BitwiseAnd";
+    case TokenType::BitwiseOr:
+        return "BitwiseOr";
+    case TokenType::EndOfStream:
+        return "EndOfStream";
+    }
+}
+
 struct Token {
 public:
     Token() : m_type(TokenType::EndOfStream) {}
@@ -74,4 +149,15 @@ private:
     TokenType m_type;
     std::string m_value;
 };
+
+std::ostream& operator<<(std::ostream& os, const Token& value);
+
 } // namespace asc
+
+template <>
+struct fmt::formatter<asc::TokenType> : fmt::formatter<std::string_view> {
+    template <typename FormatContext>
+    auto format(asc::TokenType type, FormatContext& ctx) const {
+        return fmt::formatter<std::string_view>::format(to_string(type), ctx);
+    }
+};

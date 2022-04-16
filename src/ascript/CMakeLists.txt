@@ -1,6 +1,7 @@
 set(SOURCES
     src/lexer.cpp
     src/scanner.cpp
+    src/token.cpp
 )
 
 add_library(libascript ${SOURCES})
