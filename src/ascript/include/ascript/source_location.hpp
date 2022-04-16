@@ -5,8 +5,8 @@
 namespace asc {
 
 struct SourceLocation {
-    std::size_t start;
-    std::size_t end;
+    std::size_t start{0};
+    std::size_t end{0};
 };
 
 struct position_t {

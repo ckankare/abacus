@@ -27,6 +27,7 @@ class Lexer {
 public:
     explicit Lexer(Scanner& scanner);
     Token next();
+    inline void consume() { (void)next(); }
 
     template <typename... Args>
     std::optional<Token> next_if_any(Args&&... token_types) {
@@ -115,8 +116,8 @@ public:
         {'=', TokenType::Assign},
         {'+', TokenType::Plus},
         {'-', TokenType::Minus},
-        {'*', TokenType::Multiplication},
-        {'/', TokenType::Division},
+        {'*', TokenType::Asterisk},
+        {'/', TokenType::Slash},
         {'!', TokenType::Exclamation},
         {',', TokenType::Comma},
         {'@', TokenType::At},
