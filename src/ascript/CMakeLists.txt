@@ -1,5 +1,7 @@
 set(SOURCES
+    src/ast.cpp
     src/lexer.cpp
+    src/parser.cpp
     src/scanner.cpp
     src/token.cpp
 )
