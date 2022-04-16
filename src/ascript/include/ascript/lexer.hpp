@@ -63,7 +63,8 @@ public:
                 // First move the last token
                 m_stack.push_back(std::move(token));
                 // Then move rest, in the reverse order
-                std::move(std::next(stack.rbegin(), N - i), stack.rend(), std::back_inserter(m_stack));
+                std::move(std::next(stack.rbegin(), static_cast<std::ptrdiff_t>(N - i)), stack.rend(),
+                          std::back_inserter(m_stack));
                 return {};
             }
         }
@@ -86,6 +87,9 @@ public:
             ret[i] = next();
         }
         for (std::size_t i = 0; i < N; ++i) {
+            if (ret[N - i - 1].type() == TokenType::EndOfStream) {
+                continue;
+            }
             m_stack.push_back(ret[N - i - 1]);
         }
         return ret;
