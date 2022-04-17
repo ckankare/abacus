@@ -26,6 +26,9 @@ static constexpr std::array<OperatorPrecedence, 4> operator_table = {{
     {TokenType::Slash, 5, Associative::Left},
 }};
 
+static constexpr auto binary_operation_tokens =
+    utils::make_array(TokenType::Plus, TokenType::Minus, TokenType::Asterisk, TokenType::Slash);
+
 static OperatorPrecedence get_precedence(TokenType type) {
     for (const auto& it : operator_table) {
         if (it.type == type) {
@@ -52,14 +55,10 @@ std::unique_ptr<Program> Parser::parse() {
 std::unique_ptr<Expression> Parser::parse_expression(uint32_t precedence) {
     auto expression = parse_primary_expression();
 
-    if (auto next = m_lexer.next_if(TokenType::EndOfStream); next.has_value()) {
-        return expression;
-    }
-
-    while (!m_lexer.next_if(TokenType::EndOfStream)) {
+    while (m_lexer.look_ahead().is(binary_operation_tokens)) {
 
         auto op = m_lexer.look_ahead();
-        if (!op.is(TokenType::Plus, TokenType::Minus, TokenType::Asterisk, TokenType::Slash)) {
+        if (!op.is(binary_operation_tokens)) {
             throw new std::runtime_error("Couldn't parse expression!");
         }
 
@@ -85,18 +84,24 @@ std::unique_ptr<Expression> Parser::parse_expression(uint32_t precedence) {
 std::unique_ptr<Expression> Parser::parse_primary_expression() {
     auto next = m_lexer.next();
     assert(next.type() != TokenType::EndOfStream);
-    std::unique_ptr<Expression> expression;
+
+    if (next.type() == TokenType::LeftParenthesis) {
+        auto expression = parse_expression(0);
+        auto next = m_lexer.next();
+        if (next.type() != TokenType::RightParenthesis) {
+            throw new std::runtime_error("Missing right parenthesis!");
+        }
+        return expression;
+    }
 
     if (next.type() == TokenType::Literal) {
         int32_t value;
         auto result = std::from_chars(next.value().data(), next.value().data() + next.value().size(), value);
         (void)result;
-        expression = std::make_unique<Literal>(SourceLocation{}, value);
-    } else {
-        throw new std::runtime_error("Can't parse primary expression!");
+        return std::make_unique<Literal>(SourceLocation{}, value);
     }
 
-    return expression;
+    throw new std::runtime_error("Can't parse primary expression!");
 }
 
 } // namespace asc

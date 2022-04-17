@@ -102,11 +102,16 @@ public:
 
     constexpr bool is_end() const { return m_type == TokenType::EndOfStream; }
 
+    template <std::size_t N>
+    constexpr bool is(const std::array<TokenType, N>& array) {
+        return std::any_of(array.begin(), array.end(), [this](auto v) { return v == m_type; });
+    }
+
     template <typename... Args>
     constexpr bool is(Args&&... args) const {
         static_assert(utils::are_same<TokenType, Args...>::value, "All must be TokenType");
         const auto array = utils::make_array(std::forward<Args>(args)...);
-        return std::any_of(array.begin(), array.end(), [this](auto v) { return v == m_type; });
+        return is(array);
     }
 
     constexpr TokenType type() const { return m_type; }

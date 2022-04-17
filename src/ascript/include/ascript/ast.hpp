@@ -80,7 +80,7 @@ public:
                      std::unique_ptr<Expression> rhs)
         : Expression(source_location), m_op(op), m_lhs(std::move(lhs)), m_rhs(std::move(rhs)) {}
 
-    Value execute() const override { return {}; }
+    Value execute() const override;
     void dump(int indentation, std::stringstream& builder) const override;
 
 private:

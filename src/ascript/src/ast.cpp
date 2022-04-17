@@ -22,4 +22,13 @@ void BinaryExpression::dump(int indentation, std::stringstream& builder) const {
     m_rhs->dump(indentation + 2, builder);
 }
 
+Value BinaryExpression::execute() const {
+    switch (m_op) {
+        case BinaryOp::Addition: return m_lhs->execute() + m_rhs->execute();
+        case BinaryOp::Subtraction: return m_lhs->execute() - m_rhs->execute();
+        case BinaryOp::Multiplication: return m_lhs->execute() * m_rhs->execute();
+        case BinaryOp::Division: return m_lhs->execute() / m_rhs->execute();
+    }
+}
+
 } // namespace asc
