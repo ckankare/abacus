@@ -9,7 +9,7 @@ template <typename T, typename... Ts>
 struct are_same : std::conjunction<std::is_same<T, Ts>...> {};
 
 template <typename... Ts>
-inline constexpr bool are_same_v = are_same<Ts...>::value;
+constexpr bool are_same_v = are_same<Ts...>::value;
 
 template <typename T, typename... Args>
 constexpr auto make_array(T&& arg, Args&&... args) {

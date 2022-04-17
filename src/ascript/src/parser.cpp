@@ -85,23 +85,26 @@ std::unique_ptr<Expression> Parser::parse_primary_expression() {
     auto next = m_lexer.next();
     assert(next.type() != TokenType::EndOfStream);
 
-    if (next.type() == TokenType::LeftParenthesis) {
-        auto expression = parse_expression(0);
-        auto next = m_lexer.next();
-        if (next.type() != TokenType::RightParenthesis) {
-            throw new std::runtime_error("Missing right parenthesis!");
+    switch (next.type()) {
+        case TokenType::LeftParenthesis: {
+            auto expression = parse_expression(0);
+            auto next = m_lexer.next();
+            if (next.type() != TokenType::RightParenthesis) {
+                throw new std::runtime_error("Missing right parenthesis!");
+            }
+            return expression;
         }
-        return expression;
+        case TokenType::Literal: {
+            int32_t value;
+            auto result = std::from_chars(next.value().data(), next.value().data() + next.value().size(), value);
+            (void)result; // TODO
+            return std::make_unique<Literal>(SourceLocation{}, value);
+        }
+        case TokenType::Identifier: {
+            return std::make_unique<Identifier>(SourceLocation{}, std::string(next.value()));
+        }
+        default: throw new std::runtime_error("Invalid token for primary expression!");
     }
-
-    if (next.type() == TokenType::Literal) {
-        int32_t value;
-        auto result = std::from_chars(next.value().data(), next.value().data() + next.value().size(), value);
-        (void)result;
-        return std::make_unique<Literal>(SourceLocation{}, value);
-    }
-
-    throw new std::runtime_error("Can't parse primary expression!");
 }
 
 } // namespace asc

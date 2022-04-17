@@ -7,12 +7,12 @@
 #include <fmt/format.h>
 
 #include "source_location.hpp"
+#include "value.hpp"
 
 namespace asc {
 
 class Expression;
-
-using Value = int64_t;
+class Interpreter;
 
 class ASTNode {
 public:
@@ -34,7 +34,7 @@ public:
         : ASTNode(source_location), m_expression(std::move(expression)) {}
 
     void dump(int indentation, std::stringstream& builder) const override;
-    Value execute() const;
+    Value execute(Interpreter& interpreter) const;
 
 private:
     std::unique_ptr<Expression> m_expression;
@@ -42,7 +42,7 @@ private:
 
 class Expression : public ASTNode {
 public:
-    virtual Value execute() const = 0;
+    virtual Value execute(Interpreter& interpreter) const = 0;
 
 protected:
     explicit Expression(SourceLocation source_location) : ASTNode(source_location) {}
@@ -51,11 +51,22 @@ protected:
 class Literal final : public Expression {
 public:
     Literal(SourceLocation source_location, Value value) : Expression(source_location), m_value(std::move(value)) {}
-    Value execute() const override { return m_value; }
+    Value execute(Interpreter&) const override { return m_value; }
     void dump(int indentation, std::stringstream& builder) const override;
 
 private:
     Value m_value;
+};
+
+class Identifier final : public Expression {
+public:
+    Identifier(SourceLocation source_location, std::string name)
+        : Expression(source_location), m_name(std::move(name)) {}
+    Value execute(Interpreter& interpreter) const override;
+    void dump(int indentation, std::stringstream& builder) const override;
+
+private:
+    std::string m_name;
 };
 
 enum class BinaryOp {
@@ -80,7 +91,7 @@ public:
                      std::unique_ptr<Expression> rhs)
         : Expression(source_location), m_op(op), m_lhs(std::move(lhs)), m_rhs(std::move(rhs)) {}
 
-    Value execute() const override;
+    Value execute(Interpreter& interpreter) const override;
     void dump(int indentation, std::stringstream& builder) const override;
 
 private:

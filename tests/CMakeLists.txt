@@ -6,6 +6,7 @@ set(SOURCES
     lexer.cpp
     scanner.cpp
     parser.cpp
+    interpreter.cpp
 )
 
 add_executable(tests ${SOURCES})

@@ -27,7 +27,7 @@ class Lexer {
 public:
     explicit Lexer(Scanner& scanner);
     Token next();
-    inline void consume() { (void)next(); }
+    void consume() { (void)next(); }
 
     template <typename... Args>
     std::optional<Token> next_if_any(Args&&... token_types) {
