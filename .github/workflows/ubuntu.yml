@@ -1,6 +1,6 @@
 name: Ubuntu
 env:
-  APT_COMMAND: "sudo apt-get update && sudo apt-get install gcovr g++-10 clang++-11"
+  APT_COMMAND: "sudo apt-get update && sudo apt-get install gcovr g++-10 clang++-12"
 on: [push, pull_request]
 jobs:
   build:
@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         build_type: ["Debug", "Release"]
-        compiler: ["g++-10", "clang++-11"]
+        compiler: ["g++-10", "clang++-12"]
     steps:
       # Remove apt repos that are known to break from time to time
       # See https://github.com/actions/virtual-environments/issues/323
@@ -43,7 +43,7 @@ jobs:
     strategy:
       matrix:
         build_type: ["Debug", "Release"]
-        compiler: ["g++-10", "clang++-11"]
+        compiler: ["g++-10", "clang++-12"]
     steps:
       # Remove apt repos that are known to break from time to time
       # See https://github.com/actions/virtual-environments/issues/323
