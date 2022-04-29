@@ -95,10 +95,10 @@ std::unique_ptr<Expression> Parser::parse_primary_expression() {
             return expression;
         }
         case TokenType::Literal: {
-            int32_t value;
+            int64_t value;
             auto result = std::from_chars(next.value().data(), next.value().data() + next.value().size(), value);
             (void)result; // TODO
-            return std::make_unique<Literal>(SourceLocation{}, value);
+            return std::make_unique<Literal>(SourceLocation{}, Value(value));
         }
         case TokenType::Identifier: {
             return std::make_unique<Identifier>(SourceLocation{}, std::string(next.value()));

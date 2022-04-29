@@ -13,20 +13,20 @@ TEST_CASE("Parse binary expressions") {
         asc::Parser parser("1 + 2 * 3");
         auto program = parser.parse();
 
-        CHECK(program->execute(interpreter) == 7);
+        CHECK(program->execute(interpreter) == asc::Value(7));
     }
     {
         asc::Parser parser("2 * 3 + 4");
         auto program = parser.parse();
 
-        CHECK(program->execute(interpreter) == 10);
+        CHECK(program->execute(interpreter) == asc::Value(10));
     }
 
     {
         asc::Parser parser("1 + 2 * 3 + 4");
         auto program = parser.parse();
 
-        CHECK(program->execute(interpreter) == 11);
+        CHECK(program->execute(interpreter) == asc::Value(11));
     }
 }
 
@@ -36,19 +36,19 @@ TEST_CASE("Parse parenthesis") {
         asc::Parser parser("(1 + 2) * 3");
         auto program = parser.parse();
 
-        CHECK(program->execute(interpreter) == 9);
+        CHECK(program->execute(interpreter) == asc::Value(9));
     }
     {
         asc::Parser parser("(2 * 3) + 4");
         auto program = parser.parse();
 
-        CHECK(program->execute(interpreter) == 10);
+        CHECK(program->execute(interpreter) == asc::Value(10));
     }
 
     {
         asc::Parser parser("7 * (1 + 2 * 2 + 3) + 5");
         auto program = parser.parse();
 
-        CHECK(program->execute(interpreter) == 61);
+        CHECK(program->execute(interpreter) == asc::Value(61));
     }
 }

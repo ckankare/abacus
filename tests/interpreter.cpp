@@ -7,11 +7,11 @@
 TEST_CASE("Simple identifier") {
     asc::Interpreter interpreter;
     interpreter.push();
-    interpreter.define_variable("pi", 314);
+    interpreter.define_variable("pi", asc::Value(314));
     {
         asc::Parser parser("1 + pi");
         auto program = parser.parse();
 
-        CHECK(program->execute(interpreter) == 315);
+        CHECK(program->execute(interpreter) == asc::Value(315));
     }
 }
