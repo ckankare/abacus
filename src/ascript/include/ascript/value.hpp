@@ -23,14 +23,14 @@ public:
     constexpr explicit Value(int32_t value) : Value(static_cast<int64_t>(value)) {}
     constexpr explicit Value(int64_t value) : m_data(value) {}
 
-    Value operator+(const Value& rhs) {
+    Value operator+(const Value& rhs) const {
         if (m_data.index() != rhs.m_data.index()) {
             return Value();
         }
 
         return std::visit([&](auto arg) { return Value(arg + std::get<decltype(arg)>(rhs.m_data)); }, m_data);
     }
-    Value operator-(const Value& rhs) {
+    Value operator-(const Value& rhs) const {
         if (m_data.index() != rhs.m_data.index()) {
             return Value();
         }
@@ -41,7 +41,7 @@ public:
                           },
                           m_data);
     }
-    Value operator*(const Value& rhs) {
+    Value operator*(const Value& rhs) const {
         if (m_data.index() != rhs.m_data.index()) {
             return Value();
         }
@@ -53,7 +53,7 @@ public:
                           m_data);
     }
 
-    Value operator/(const Value& rhs) {
+    Value operator/(const Value& rhs) const {
         if (m_data.index() != rhs.m_data.index()) {
             return Value();
         }
