@@ -69,6 +69,19 @@ private:
     std::string m_name;
 };
 
+class CallExpression final : public Expression {
+public:
+    CallExpression(SourceLocation source_location, std::string name, std::vector<std::unique_ptr<Expression>> arguments)
+        : Expression(source_location), m_name(std::move(name)), m_arguments(std::move(arguments)) {}
+
+    Value execute(Interpreter& interpreter) const override;
+    void dump(int indentation, std::stringstream& builder) const override;
+
+private:
+    std::string m_name;
+    std::vector<std::unique_ptr<Expression>> m_arguments;
+};
+
 enum class BinaryOp {
     Addition,
     Subtraction,

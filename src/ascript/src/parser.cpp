@@ -88,8 +88,7 @@ std::unique_ptr<Expression> Parser::parse_primary_expression() {
     switch (next.type()) {
         case TokenType::LeftParenthesis: {
             auto expression = parse_expression(0);
-            auto next = m_lexer.next();
-            if (next.type() != TokenType::RightParenthesis) {
+            if (m_lexer.next().type() != TokenType::RightParenthesis) {
                 throw new std::runtime_error("Missing right parenthesis!");
             }
             return expression;
@@ -101,7 +100,28 @@ std::unique_ptr<Expression> Parser::parse_primary_expression() {
             return std::make_unique<Literal>(SourceLocation{}, Value(value));
         }
         case TokenType::Identifier: {
-            return std::make_unique<Identifier>(SourceLocation{}, std::string(next.value()));
+            if (m_lexer.look_ahead().type() == TokenType::LeftParenthesis) {
+                auto name = std::string(next.value());
+                m_lexer.consume();
+                std::vector<std::unique_ptr<Expression>> arguments;
+
+                while (!m_lexer.look_ahead().is(TokenType::RightParenthesis, TokenType::EndOfStream)) {
+                    arguments.push_back(std::move(parse_expression(0)));
+                    if (!m_lexer.look_ahead().is(TokenType::Comma, TokenType::RightParenthesis)) {
+                        throw new std::runtime_error("Expecting comma or right parenthesis!");
+                    }
+                    if (m_lexer.look_ahead().type() == TokenType::Comma) {
+                        m_lexer.consume();
+                    }
+                }
+
+                if (m_lexer.next().type() != TokenType::RightParenthesis) {
+                    throw new std::runtime_error("Missing right parenthesis!");
+                }
+                return std::make_unique<CallExpression>(SourceLocation{}, std::move(name), std::move(arguments));
+            } else {
+                return std::make_unique<Identifier>(SourceLocation{}, std::string(next.value()));
+            }
         }
         default: throw new std::runtime_error("Invalid token for primary expression!");
     }

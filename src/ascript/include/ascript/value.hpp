@@ -23,6 +23,14 @@ public:
     constexpr explicit Value(int32_t value) : Value(static_cast<int64_t>(value)) {}
     constexpr explicit Value(int64_t value) : m_data(value) {}
 
+    int64_t as_int64() const {
+        return std::visit(overloaded{
+                              [](auto arg) { return static_cast<int64_t>(arg); }, //
+                              [](const std::string& arg) { return int64_t{0}; }   //
+                          },
+                          m_data);
+    }
+
     Value operator+(const Value& rhs) const {
         if (m_data.index() != rhs.m_data.index()) {
             return Value();

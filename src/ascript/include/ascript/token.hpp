@@ -103,7 +103,7 @@ public:
     constexpr bool is_end() const { return m_type == TokenType::EndOfStream; }
 
     template <std::size_t N>
-    constexpr bool is(const std::array<TokenType, N>& array) {
+    constexpr bool is(const std::array<TokenType, N>& array) const {
         return std::any_of(array.begin(), array.end(), [this](auto v) { return v == m_type; });
     }
 

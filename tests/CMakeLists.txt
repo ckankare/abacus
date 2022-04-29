@@ -3,6 +3,7 @@ set(SOURCES
     big_int.cpp
     big_int_functions.cpp
     number.cpp
+    function.cpp
     lexer.cpp
     scanner.cpp
     parser.cpp
