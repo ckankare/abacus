@@ -48,8 +48,55 @@ static BinaryOp to_binary_op(TokenType token_type) {
     }
 }
 std::unique_ptr<Program> Parser::parse() {
+    std::vector<std::unique_ptr<FunctionDeclaration>> functions;
+    while (m_lexer.look_ahead().type() == TokenType::Function) {
+        functions.push_back(parse_function_declaration());
+    }
+
+    std::unique_ptr<Expression> expression;
+    if (m_lexer.look_ahead().type() != TokenType::EndOfStream) {
+        expression = parse_expression(0);
+    }
+    return std::make_unique<Program>(SourceLocation{}, std::move(expression), std::move(functions));
+}
+
+void Parser::require_consume(TokenType token_type) {
+    auto next = m_lexer.next();
+    if (next.type() != token_type) {
+        throw new std::runtime_error(fmt::format("Expected '{}' got '{}'!", token_type, next));
+    }
+}
+
+Token Parser::require(TokenType token_type) {
+    auto next = m_lexer.next();
+    if (next.type() != token_type) {
+        throw new std::runtime_error(fmt::format("Expected '{}' got '{}'!", token_type, next));
+    }
+    return next;
+}
+
+std::unique_ptr<FunctionDeclaration> Parser::parse_function_declaration() {
+    require_consume(TokenType::Function);
+    auto identifier = require(TokenType::Identifier);
+    require_consume(TokenType::LeftParenthesis);
+
+    std::vector<std::string> arguments;
+    while (!m_lexer.look_ahead().is(TokenType::RightParenthesis, TokenType::EndOfStream)) {
+        arguments.push_back(std::string(require(TokenType::Identifier).value()));
+        if (!m_lexer.look_ahead().is(TokenType::Comma, TokenType::RightParenthesis)) {
+            throw new std::runtime_error("Expecting comma or right parenthesis!");
+        }
+        if (m_lexer.look_ahead().type() == TokenType::Comma) {
+            m_lexer.consume();
+        }
+    }
+    require_consume(TokenType::RightParenthesis);
+
+    require_consume(TokenType::LeftCurly);
     auto expression = parse_expression(0);
-    return std::make_unique<Program>(SourceLocation{}, std::move(expression));
+    require_consume(TokenType::RightCurly);
+    return std::make_unique<FunctionDeclaration>(SourceLocation{}, std::string(identifier.value()),
+                                                 std::move(arguments), std::move(expression));
 }
 
 std::unique_ptr<Expression> Parser::parse_expression(uint32_t precedence) {

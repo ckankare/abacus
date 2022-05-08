@@ -4,9 +4,6 @@
 #include <ascript/interpreter.hpp>
 #include <ascript/parser.hpp>
 
-#include <iostream>
-#include <sstream>
-
 TEST_CASE("Parse binary expressions") {
     asc::Interpreter interpreter;
     {
@@ -50,5 +47,17 @@ TEST_CASE("Parse parenthesis") {
         auto program = parser.parse();
 
         CHECK(program->execute(interpreter) == asc::Value(61));
+    }
+}
+
+TEST_CASE("Parse function declaration") {
+    {
+        asc::Parser parser("fn zero() { 0 }");
+        auto program = parser.parse();
+    }
+
+    {
+        asc::Parser parser("fn sum(a, b) { a + b }");
+        auto program = parser.parse();
     }
 }

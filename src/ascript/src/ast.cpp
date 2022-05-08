@@ -7,11 +7,28 @@
 namespace asc {
 static std::string whitespaces(int count) { return fmt::format("{:{}}", "", count); }
 
-Value Program::execute(Interpreter& interpreter) const { return m_expression->execute(interpreter); }
+void FunctionDeclaration::dump(int indentation, std::stringstream& builder) const {
+    builder << whitespaces(indentation) << fmt::format("Function '{}({})':\n", m_name, fmt::join(m_arguments, ", "));
+    m_body->dump(indentation + 2, builder);
+}
+
+Value Program::execute(Interpreter& interpreter) const {
+    if (m_expression) {
+        return m_expression->execute(interpreter);
+    }
+
+    return Value{};
+}
 
 void Program::dump(int indentation, std::stringstream& builder) const {
     builder << whitespaces(indentation) << fmt::format("Program:\n");
-    m_expression->dump(indentation + 2, builder);
+    for (const auto& function : m_functions) {
+        function->dump(indentation + 2, builder);
+    }
+
+    if (m_expression) {
+        m_expression->dump(indentation + 2, builder);
+    }
 }
 
 void Literal::dump(int indentation, std::stringstream& builder) const {

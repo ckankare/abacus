@@ -28,16 +28,33 @@ private:
     SourceLocation m_source_location;
 };
 
+class FunctionDeclaration final : public ASTNode {
+public:
+    FunctionDeclaration(SourceLocation source_location, std::string name, std::vector<std::string> arguments,
+                        std::unique_ptr<Expression> body)
+        : ASTNode(source_location), m_name(std::move(name)), m_arguments(std::move(arguments)),
+          m_body(std::move(body)) {}
+
+    void dump(int indentation, std::stringstream& builder) const override;
+
+private:
+    std::string m_name;
+    std::vector<std::string> m_arguments;
+    std::unique_ptr<Expression> m_body;
+};
+
 class Program final : public ASTNode {
 public:
-    Program(SourceLocation source_location, std::unique_ptr<Expression> expression)
-        : ASTNode(source_location), m_expression(std::move(expression)) {}
+    Program(SourceLocation source_location, std::unique_ptr<Expression> expression,
+            std::vector<std::unique_ptr<FunctionDeclaration>> functions)
+        : ASTNode(source_location), m_expression(std::move(expression)), m_functions(std::move(functions)) {}
 
     void dump(int indentation, std::stringstream& builder) const override;
     Value execute(Interpreter& interpreter) const;
 
 private:
     std::unique_ptr<Expression> m_expression;
+    std::vector<std::unique_ptr<FunctionDeclaration>> m_functions;
 };
 
 class Expression : public ASTNode {
