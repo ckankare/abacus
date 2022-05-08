@@ -38,7 +38,7 @@ void Literal::dump(int indentation, std::stringstream& builder) const {
 Value Identifier::execute(Interpreter& interpreter) const {
     auto variable = interpreter.find_variable(m_name);
     if (variable == nullptr) {
-        throw new std::runtime_error(fmt::format("Variable '{}' undefined!", m_name));
+        throw std::runtime_error(fmt::format("Variable '{}' undefined!", m_name));
     }
 
     return *variable;
@@ -51,7 +51,7 @@ void Identifier::dump(int indentation, std::stringstream& builder) const {
 Value CallExpression::execute(Interpreter& interpreter) const {
     auto callee = interpreter.find_function(m_name);
     if (callee == nullptr) {
-        throw new std::runtime_error(fmt::format("Function '{}' undefined!", m_name));
+        throw std::runtime_error(fmt::format("Function '{}' undefined!", m_name));
     }
 
     std::vector<Value> calculated_arguments;

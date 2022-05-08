@@ -35,7 +35,7 @@ static OperatorPrecedence get_precedence(TokenType type) {
             return it;
         }
     }
-    throw new std::runtime_error("Invalid operator!");
+    throw std::runtime_error("Invalid operator!");
 }
 
 static BinaryOp to_binary_op(TokenType token_type) {
@@ -44,7 +44,7 @@ static BinaryOp to_binary_op(TokenType token_type) {
         case TokenType::Minus: return BinaryOp::Subtraction;
         case TokenType::Asterisk: return BinaryOp::Multiplication;
         case TokenType::Slash: return BinaryOp::Division;
-        default: throw new std::runtime_error("Invalid binary token!");
+        default: throw std::runtime_error("Invalid binary token!");
     }
 }
 std::unique_ptr<Program> Parser::parse() {
@@ -63,14 +63,14 @@ std::unique_ptr<Program> Parser::parse() {
 void Parser::require_consume(TokenType token_type) {
     auto next = m_lexer.next();
     if (next.type() != token_type) {
-        throw new std::runtime_error(fmt::format("Expected '{}' got '{}'!", token_type, next));
+        throw std::runtime_error(fmt::format("Expected '{}' got '{}'!", token_type, next));
     }
 }
 
 Token Parser::require(TokenType token_type) {
     auto next = m_lexer.next();
     if (next.type() != token_type) {
-        throw new std::runtime_error(fmt::format("Expected '{}' got '{}'!", token_type, next));
+        throw std::runtime_error(fmt::format("Expected '{}' got '{}'!", token_type, next));
     }
     return next;
 }
@@ -84,7 +84,7 @@ std::unique_ptr<FunctionDeclaration> Parser::parse_function_declaration() {
     while (!m_lexer.look_ahead().is(TokenType::RightParenthesis, TokenType::EndOfStream)) {
         arguments.push_back(std::string(require(TokenType::Identifier).value()));
         if (!m_lexer.look_ahead().is(TokenType::Comma, TokenType::RightParenthesis)) {
-            throw new std::runtime_error("Expecting comma or right parenthesis!");
+            throw std::runtime_error("Expecting comma or right parenthesis!");
         }
         if (m_lexer.look_ahead().type() == TokenType::Comma) {
             m_lexer.consume();
@@ -106,7 +106,7 @@ std::unique_ptr<Expression> Parser::parse_expression(uint32_t precedence) {
 
         auto op = m_lexer.look_ahead();
         if (!op.is(binary_operation_tokens)) {
-            throw new std::runtime_error("Couldn't parse expression!");
+            throw std::runtime_error("Couldn't parse expression!");
         }
 
         auto op_precedence = get_precedence(op.type());
@@ -136,7 +136,7 @@ std::unique_ptr<Expression> Parser::parse_primary_expression() {
         case TokenType::LeftParenthesis: {
             auto expression = parse_expression(0);
             if (m_lexer.next().type() != TokenType::RightParenthesis) {
-                throw new std::runtime_error("Missing right parenthesis!");
+                throw std::runtime_error("Missing right parenthesis!");
             }
             return expression;
         }
@@ -155,7 +155,7 @@ std::unique_ptr<Expression> Parser::parse_primary_expression() {
                 while (!m_lexer.look_ahead().is(TokenType::RightParenthesis, TokenType::EndOfStream)) {
                     arguments.push_back(std::move(parse_expression(0)));
                     if (!m_lexer.look_ahead().is(TokenType::Comma, TokenType::RightParenthesis)) {
-                        throw new std::runtime_error("Expecting comma or right parenthesis!");
+                        throw std::runtime_error("Expecting comma or right parenthesis!");
                     }
                     if (m_lexer.look_ahead().type() == TokenType::Comma) {
                         m_lexer.consume();
@@ -163,14 +163,14 @@ std::unique_ptr<Expression> Parser::parse_primary_expression() {
                 }
 
                 if (m_lexer.next().type() != TokenType::RightParenthesis) {
-                    throw new std::runtime_error("Missing right parenthesis!");
+                    throw std::runtime_error("Missing right parenthesis!");
                 }
                 return std::make_unique<CallExpression>(SourceLocation{}, std::move(name), std::move(arguments));
             } else {
                 return std::make_unique<Identifier>(SourceLocation{}, std::string(next.value()));
             }
         }
-        default: throw new std::runtime_error("Invalid token for primary expression!");
+        default: throw std::runtime_error("Invalid token for primary expression!");
     }
 }
 
