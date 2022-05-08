@@ -26,7 +26,7 @@ public:
     int64_t as_int64() const {
         return std::visit(overloaded{
                               [](auto arg) { return static_cast<int64_t>(arg); }, //
-                              [](const std::string& arg) { return int64_t{0}; }   //
+                              [](const std::string&) { return int64_t{0}; }       //
                           },
                           m_data);
     }

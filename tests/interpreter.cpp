@@ -6,7 +6,6 @@
 
 TEST_CASE("Simple identifier") {
     asc::Interpreter interpreter;
-    interpreter.push();
     interpreter.define_variable("pi", asc::Value(314));
     {
         asc::Parser parser("1 + pi");
@@ -26,7 +25,6 @@ static asc::Value double_sum(std::vector<asc::Value> args) {
 
 TEST_CASE("Call simple native function") {
     asc::Interpreter interpreter;
-    interpreter.push();
     interpreter.define_function("double_sum", std::make_unique<asc::NativeFunction>(double_sum));
     {
         asc::Parser parser("double_sum(41, 3)");

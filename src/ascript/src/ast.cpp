@@ -7,12 +7,39 @@
 namespace asc {
 static std::string whitespaces(int count) { return fmt::format("{:{}}", "", count); }
 
+class ScriptFunction final : public Function {
+public:
+    explicit ScriptFunction(const FunctionDeclaration& declaration) : m_declaration(&declaration) {}
+    Value call(std::vector<Value> arguments) override {
+        Interpreter interpreter;
+
+        auto decl_arguments = m_declaration->arguments();
+        if (arguments.size() != decl_arguments.size()) {
+            throw std::runtime_error(
+                fmt::format("Expected {} arguments, {} provided!", decl_arguments.size(), arguments.size()));
+        }
+
+        for (std::size_t i = 0; i < arguments.size(); ++i) {
+            interpreter.define_variable(decl_arguments[i], arguments[i]);
+        }
+
+        return m_declaration->body()->execute(interpreter);
+    }
+
+    const FunctionDeclaration* m_declaration;
+};
+
 void FunctionDeclaration::dump(int indentation, std::stringstream& builder) const {
     builder << whitespaces(indentation) << fmt::format("Function '{}({})':\n", m_name, fmt::join(m_arguments, ", "));
     m_body->dump(indentation + 2, builder);
 }
 
 Value Program::execute(Interpreter& interpreter) const {
+    for (const auto& function : m_functions) {
+        auto script_function = std::make_unique<ScriptFunction>(*function);
+        interpreter.define_function(function->name(), std::move(script_function));
+    }
+
     if (m_expression) {
         return m_expression->execute(interpreter);
     }
@@ -78,6 +105,7 @@ Value BinaryExpression::execute(Interpreter& interpreter) const {
         case BinaryOp::Multiplication: return m_lhs->execute(interpreter) * m_rhs->execute(interpreter);
         case BinaryOp::Division: return m_lhs->execute(interpreter) / m_rhs->execute(interpreter);
     }
+    assert(false);
 }
 
 void BinaryExpression::dump(int indentation, std::stringstream& builder) const {

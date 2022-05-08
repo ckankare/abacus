@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cassert>
 #include <ostream>
 
 #include <common/meta.hpp>
@@ -88,6 +89,7 @@ constexpr std::string_view to_string(TokenType type) {
         case TokenType::BitwiseOr: return "BitwiseOr";
         case TokenType::EndOfStream: return "EndOfStream";
     }
+    assert(false);
 }
 
 class Token {

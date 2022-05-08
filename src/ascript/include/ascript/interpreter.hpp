@@ -60,6 +60,7 @@ private:
 
 class Interpreter {
 public:
+    explicit Interpreter() { push(); }
     Value* find_variable(std::string_view name) {
         for (auto it = m_scopes.rbegin(); it != m_scopes.rend(); ++it) {
             if (auto* value = it->find_variable(name); value) {

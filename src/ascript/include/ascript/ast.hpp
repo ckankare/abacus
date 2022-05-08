@@ -36,6 +36,9 @@ public:
           m_body(std::move(body)) {}
 
     void dump(int indentation, std::stringstream& builder) const override;
+    const std::string& name() const { return m_name; }
+    const std::vector<std::string>& arguments() const { return m_arguments; }
+    const Expression* body() const { return m_body.get(); }
 
 private:
     std::string m_name;
@@ -113,6 +116,7 @@ constexpr std::string_view to_string(BinaryOp value) {
         case asc::BinaryOp::Multiplication: return "*";
         case asc::BinaryOp::Division: return "/";
     }
+    assert(false);
 }
 
 class BinaryExpression final : public Expression {
