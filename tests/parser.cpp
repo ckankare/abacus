@@ -4,6 +4,17 @@
 #include <ascript/interpreter.hpp>
 #include <ascript/parser.hpp>
 
+TEST_CASE("Parse value") {
+    CHECK(asc::from_str("24", 16) == asc::Value(36));
+    CHECK(asc::from_str("8468", 10) == asc::Value(8468));
+
+    CHECK(asc::from_str("1.25", 10) == asc::Value(1.25));
+
+    CHECK_THROWS(asc::from_str("1.25", 16));
+    CHECK_THROWS(asc::from_str("1.25.55", 10));
+    CHECK_THROWS(asc::from_str("a3", 10));
+}
+
 TEST_CASE("Parse binary expressions") {
     asc::Interpreter interpreter;
     {
@@ -59,32 +70,5 @@ TEST_CASE("Parse function declaration") {
     {
         asc::Parser parser("fn sum(a, b) { a + b }");
         auto program = parser.parse();
-    }
-}
-
-TEST_CASE("Execute function declaration") {
-    {
-        asc::Interpreter interpreter;
-        asc::Parser parser("fn two() { 2 }"
-                           "3 + two() * 4");
-        auto program = parser.parse();
-        CHECK(program->execute(interpreter) == asc::Value(11));
-    }
-
-    {
-        asc::Interpreter interpreter;
-        asc::Parser parser("fn sum(a, b) { a + b }"
-                           "3 * sum(7,15) + sum(2*2, 1*3)");
-        auto program = parser.parse();
-        CHECK(program->execute(interpreter) == asc::Value(66 + 7));
-    }
-
-    {
-        asc::Interpreter interpreter;
-        asc::Parser parser("fn sum(a, b) { a + b }"
-                           "fn two() { 2 }"
-                           "two() * sum(two(), sum(5,3)) - sum(two(), two())");
-        auto program = parser.parse();
-        CHECK(program->execute(interpreter) == asc::Value(16));
     }
 }

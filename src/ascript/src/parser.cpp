@@ -7,6 +7,34 @@
 
 namespace asc {
 
+Value from_str(std::string_view str, uint32_t base) {
+    auto to_value = [](auto ec, auto value) {
+        if (ec == std::errc::invalid_argument) {
+            throw std::runtime_error("Invalid literal literal!");
+        } else if (ec == std::errc::result_out_of_range) {
+            throw std::runtime_error("Literal out-of-range!");
+        }
+        return Value(value);
+    };
+
+    switch (std::count(str.begin(), str.end(), '.')) {
+        case 0: {
+            int64_t value;
+            auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), value, base);
+            return to_value(ec, value);
+        }
+        case 1: {
+            if (base != 10) {
+                throw std::runtime_error("Only base 10 supported for real numbers!");
+            }
+            double value;
+            auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), value, std::chars_format::fixed);
+            return to_value(ec, value);
+        }
+        default: throw std::runtime_error("Expected 0 or 1 '.' in literal!");
+    }
+}
+
 enum class Associative {
     None,
     Left,
@@ -129,6 +157,11 @@ std::unique_ptr<Expression> Parser::parse_expression(uint32_t precedence) {
 }
 
 std::unique_ptr<Expression> Parser::parse_primary_expression() {
+    auto remove_prefix = [](std::string_view view, std::size_t n) {
+        view.remove_prefix(n);
+        return view;
+    };
+
     auto next = m_lexer.next();
     assert(next.type() != TokenType::EndOfStream);
 
@@ -141,9 +174,17 @@ std::unique_ptr<Expression> Parser::parse_primary_expression() {
             return expression;
         }
         case TokenType::Literal: {
-            int64_t value;
-            auto result = std::from_chars(next.value().data(), next.value().data() + next.value().size(), value);
-            (void)result; // TODO
+            Value value;
+            if (next.value().starts_with("0x")) {
+                value = from_str(remove_prefix(next.value(), 2), 16);
+            } else if (next.value().starts_with("0o")) {
+                value = from_str(remove_prefix(next.value(), 2), 8);
+            } else if (next.value().starts_with("0b")) {
+                value = from_str(remove_prefix(next.value(), 2), 2);
+            } else {
+                value = from_str(next.value(), 10);
+            }
+
             return std::make_unique<Literal>(SourceLocation{}, Value(value));
         }
         case TokenType::Identifier: {

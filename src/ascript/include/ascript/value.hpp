@@ -8,6 +8,8 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <common/meta.hpp>
+
 namespace asc {
 
 template <class... Ts>
@@ -85,8 +87,14 @@ public:
         if (m_data.index() != rhs.m_data.index()) {
             return false;
         }
-        assert(m_data.index() == 0);
-        return std::get<0>(m_data) == std::get<0>(rhs.m_data);
+        bool result = false;
+        utils::for_each<0, 2>([&](auto index) {
+            using I = decltype(index);
+            if (index == static_cast<int32_t>(m_data.index())) {
+                result = std::get<I::value>(m_data) == std::get<I::value>(rhs.m_data);
+            }
+        });
+        return result;
     }
 
 private:

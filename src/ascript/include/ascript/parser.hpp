@@ -1,15 +1,19 @@
 #pragma once
 
 #include <memory>
+#include <string_view>
 
 #include "lexer.hpp"
 #include "scanner.hpp"
+#include "value.hpp"
 
 namespace asc {
 class Program;
 class Expression;
 class FunctionDeclaration;
 class BinaryExpression;
+
+Value from_str(std::string_view str, uint32_t base);
 
 class Parser {
 public:
