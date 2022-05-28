@@ -81,11 +81,11 @@ std::unique_ptr<Program> Parser::parse() {
         functions.push_back(parse_function_declaration());
     }
 
-    std::unique_ptr<Expression> expression;
+    std::unique_ptr<Statement> statement;
     if (m_lexer.look_ahead().type() != TokenType::EndOfStream) {
-        expression = parse_expression(0);
+        statement = parse_statement();
     }
-    return std::make_unique<Program>(SourceLocation{}, std::move(expression), std::move(functions));
+    return std::make_unique<Program>(SourceLocation{}, std::move(statement), std::move(functions));
 }
 
 void Parser::require_consume(TokenType token_type) {
@@ -120,11 +120,26 @@ std::unique_ptr<FunctionDeclaration> Parser::parse_function_declaration() {
     }
     require_consume(TokenType::RightParenthesis);
 
-    require_consume(TokenType::LeftCurly);
-    auto expression = parse_expression(0);
-    require_consume(TokenType::RightCurly);
+    auto statement = parse_statement();
+
     return std::make_unique<FunctionDeclaration>(SourceLocation{}, std::string(identifier.value()),
-                                                 std::move(arguments), std::move(expression));
+                                                 std::move(arguments), std::move(statement));
+}
+
+std::unique_ptr<Statement> Parser::parse_statement() {
+    if (m_lexer.look_ahead().type() == TokenType::LeftCurly) {
+        require_consume(TokenType::LeftCurly);
+        std::vector<std::unique_ptr<Statement>> statements;
+        while (m_lexer.look_ahead().type() != TokenType::RightCurly) {
+            statements.push_back(parse_statement());
+        }
+        require_consume(TokenType::RightCurly);
+        return std::make_unique<BlockStatement>(SourceLocation{}, std::move(statements));
+    }
+
+    auto expression = parse_expression(0);
+    assert(m_lexer.look_ahead().type() != TokenType::Semicolon); // TODO
+    return std::make_unique<ReturnStatement>(SourceLocation{}, std::move(expression));
 }
 
 std::unique_ptr<Expression> Parser::parse_expression(uint32_t precedence) {

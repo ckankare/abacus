@@ -12,7 +12,9 @@
 namespace asc {
 
 class Expression;
+class FunctionDeclaration;
 class Interpreter;
+class Statement;
 
 class ASTNode {
 public:
@@ -28,36 +30,67 @@ private:
     SourceLocation m_source_location;
 };
 
+class Program final : public ASTNode {
+public:
+    Program(SourceLocation source_location, std::unique_ptr<Statement> statement,
+            std::vector<std::unique_ptr<FunctionDeclaration>> functions)
+        : ASTNode(source_location), m_statement(std::move(statement)), m_functions(std::move(functions)) {}
+
+    void dump(int indentation, std::stringstream& builder) const override;
+    Value execute(Interpreter& interpreter) const;
+
+private:
+    std::unique_ptr<Statement> m_statement;
+    std::vector<std::unique_ptr<FunctionDeclaration>> m_functions;
+};
+
 class FunctionDeclaration final : public ASTNode {
 public:
     FunctionDeclaration(SourceLocation source_location, std::string name, std::vector<std::string> arguments,
-                        std::unique_ptr<Expression> body)
+                        std::unique_ptr<Statement> body)
         : ASTNode(source_location), m_name(std::move(name)), m_arguments(std::move(arguments)),
           m_body(std::move(body)) {}
 
     void dump(int indentation, std::stringstream& builder) const override;
     const std::string& name() const { return m_name; }
     const std::vector<std::string>& arguments() const { return m_arguments; }
-    const Expression* body() const { return m_body.get(); }
+    const Statement* body() const { return m_body.get(); }
 
 private:
     std::string m_name;
     std::vector<std::string> m_arguments;
-    std::unique_ptr<Expression> m_body;
+    std::unique_ptr<Statement> m_body;
 };
 
-class Program final : public ASTNode {
+class Statement : public ASTNode {
 public:
-    Program(SourceLocation source_location, std::unique_ptr<Expression> expression,
-            std::vector<std::unique_ptr<FunctionDeclaration>> functions)
-        : ASTNode(source_location), m_expression(std::move(expression)), m_functions(std::move(functions)) {}
+    virtual void execute(Interpreter& interpreter) const = 0;
 
+protected:
+    Statement(SourceLocation source_location) : ASTNode(source_location) {}
+};
+
+class BlockStatement final : public Statement {
+public:
+    BlockStatement(SourceLocation source_location, std::vector<std::unique_ptr<Statement>> statements)
+        : Statement(source_location), m_statements(std::move(statements)) {}
+    void execute(Interpreter& interpreter) const override;
     void dump(int indentation, std::stringstream& builder) const override;
-    Value execute(Interpreter& interpreter) const;
+
+private:
+    std::vector<std::unique_ptr<Statement>> m_statements;
+};
+
+class ReturnStatement final : public Statement {
+public:
+    ReturnStatement(SourceLocation source_location, std::unique_ptr<Expression> expression)
+        : Statement(source_location), m_expression(std::move(expression)) {}
+
+    void execute(Interpreter& interpreter) const override;
+    void dump(int indentation, std::stringstream& builder) const override;
 
 private:
     std::unique_ptr<Expression> m_expression;
-    std::vector<std::unique_ptr<FunctionDeclaration>> m_functions;
 };
 
 class Expression : public ASTNode {

@@ -8,10 +8,12 @@
 #include "value.hpp"
 
 namespace asc {
-class Program;
+
+class BinaryExpression;
 class Expression;
 class FunctionDeclaration;
-class BinaryExpression;
+class Program;
+class Statement;
 
 Value from_str(std::string_view str, uint32_t base);
 
@@ -24,6 +26,7 @@ protected:
     void require_consume(TokenType token_type);
     Token require(TokenType token_type);
     std::unique_ptr<FunctionDeclaration> parse_function_declaration();
+    std::unique_ptr<Statement> parse_statement();
     std::unique_ptr<Expression> parse_expression(uint32_t precedence);
     std::unique_ptr<Expression> parse_primary_expression();
 

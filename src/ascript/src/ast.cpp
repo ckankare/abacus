@@ -23,16 +23,12 @@ public:
             interpreter.define_variable(decl_arguments[i], arguments[i]);
         }
 
-        return m_declaration->body()->execute(interpreter);
+        m_declaration->body()->execute(interpreter);
+        return interpreter.result();
     }
 
     const FunctionDeclaration* m_declaration;
 };
-
-void FunctionDeclaration::dump(int indentation, std::stringstream& builder) const {
-    builder << whitespaces(indentation) << fmt::format("Function '{}({})':\n", m_name, fmt::join(m_arguments, ", "));
-    m_body->dump(indentation + 2, builder);
-}
 
 Value Program::execute(Interpreter& interpreter) const {
     for (const auto& function : m_functions) {
@@ -40,11 +36,11 @@ Value Program::execute(Interpreter& interpreter) const {
         interpreter.define_function(function->name(), std::move(script_function));
     }
 
-    if (m_expression) {
-        return m_expression->execute(interpreter);
+    if (m_statement) {
+        m_statement->execute(interpreter);
     }
 
-    return Value{};
+    return interpreter.result();
 }
 
 void Program::dump(int indentation, std::stringstream& builder) const {
@@ -53,8 +49,40 @@ void Program::dump(int indentation, std::stringstream& builder) const {
         function->dump(indentation + 2, builder);
     }
 
+    if (m_statement) {
+        m_statement->dump(indentation + 2, builder);
+    }
+}
+
+void FunctionDeclaration::dump(int indentation, std::stringstream& builder) const {
+    builder << whitespaces(indentation) << fmt::format("Function '{}({})':\n", m_name, fmt::join(m_arguments, ", "));
+    m_body->dump(indentation + 2, builder);
+}
+
+void BlockStatement::dump(int indentation, std::stringstream& builder) const {
+    builder << whitespaces(indentation) << fmt::format("Block:\n");
+    for (const auto& statement : m_statements) {
+        statement->dump(indentation + 2, builder);
+    }
+}
+
+void BlockStatement::execute(Interpreter& interpreter) const {
+    for (const auto& statement : m_statements) {
+        statement->execute(interpreter);
+    }
+}
+
+void ReturnStatement::dump(int indentation, std::stringstream& builder) const {
+    builder << whitespaces(indentation) << fmt::format("Return:\n");
     if (m_expression) {
         m_expression->dump(indentation + 2, builder);
+    }
+}
+
+void ReturnStatement::execute(Interpreter& interpreter) const {
+    if (m_expression) {
+        auto value = m_expression->execute(interpreter);
+        interpreter.set_result(std::move(value));
     }
 }
 
