@@ -93,6 +93,19 @@ private:
     std::unique_ptr<Expression> m_expression;
 };
 
+class AssignStatement final : public Statement {
+public:
+    AssignStatement(SourceLocation source_location, std::string name, std::unique_ptr<Expression> expression)
+        : Statement(source_location), m_name(std::move(name)), m_expression(std::move(expression)) {}
+
+    void execute(Interpreter& interpreter) const override;
+    void dump(int indentation, std::stringstream& builder) const override;
+
+private:
+    std::string m_name;
+    std::unique_ptr<Expression> m_expression;
+};
+
 class Expression : public ASTNode {
 public:
     virtual Value execute(Interpreter& interpreter) const = 0;

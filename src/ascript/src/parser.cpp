@@ -83,7 +83,11 @@ std::unique_ptr<Program> Parser::parse() {
 
     std::unique_ptr<Statement> statement;
     if (m_lexer.look_ahead().type() != TokenType::EndOfStream) {
-        statement = parse_statement();
+        std::vector<std::unique_ptr<Statement>> statements;
+        while (m_lexer.look_ahead().type() != TokenType::EndOfStream) {
+            statements.push_back(parse_statement());
+        }
+        statement = std::make_unique<BlockStatement>(SourceLocation{}, std::move(statements));
     }
     return std::make_unique<Program>(SourceLocation{}, std::move(statement), std::move(functions));
 }
@@ -118,6 +122,7 @@ std::unique_ptr<FunctionDeclaration> Parser::parse_function_declaration() {
             m_lexer.consume();
         }
     }
+    // TODO Probably require left curly
     require_consume(TokenType::RightParenthesis);
 
     auto statement = parse_statement();
@@ -137,8 +142,16 @@ std::unique_ptr<Statement> Parser::parse_statement() {
         return std::make_unique<BlockStatement>(SourceLocation{}, std::move(statements));
     }
 
+    if (auto next = m_lexer.next_if(TokenType::Identifier, TokenType::Assign)) {
+        auto expression = parse_expression(0);
+        require_consume(TokenType::Semicolon);
+        return std::make_unique<AssignStatement>(SourceLocation{}, std::string((*next)[0].value()),
+                                                 std::move(expression));
+    }
+
     auto expression = parse_expression(0);
     assert(m_lexer.look_ahead().type() != TokenType::Semicolon); // TODO
+    // TODO Trailing auto return only allowed for last expression?
     return std::make_unique<ReturnStatement>(SourceLocation{}, std::move(expression));
 }
 

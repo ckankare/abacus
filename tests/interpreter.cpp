@@ -4,6 +4,9 @@
 #include <ascript/interpreter.hpp>
 #include <ascript/parser.hpp>
 
+#include <iostream>
+#include <sstream>
+
 TEST_CASE("Simple identifier") {
     asc::Interpreter interpreter;
     interpreter.define_variable("pi", asc::Value(314));
@@ -58,5 +61,26 @@ TEST_CASE("Execute function declaration") {
                            "two() * sum(two(), sum(5,3)) - sum(two(), two())");
         auto program = parser.parse();
         CHECK(program->execute(interpreter) == asc::Value(16));
+    }
+}
+
+TEST_CASE("Assignment") {
+    {
+        asc::Interpreter interpreter;
+        asc::Parser parser("a = 5;"
+                           "b = a + 2;"
+                           "a * 3 + b");
+        auto program = parser.parse();
+        CHECK(program->execute(interpreter) == asc::Value(22));
+    }
+
+    {
+        asc::Interpreter interpreter;
+        asc::Parser parser("foo = 3;"
+                           "foo = 2 * foo + 7;"
+                           "{foo = foo + 1;}"
+                           "foo");
+        auto program = parser.parse();
+        CHECK(program->execute(interpreter) == asc::Value(14));
     }
 }

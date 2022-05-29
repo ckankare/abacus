@@ -10,6 +10,7 @@
 namespace asc {
 
 class BinaryExpression;
+class BlockStatement;
 class Expression;
 class FunctionDeclaration;
 class Program;

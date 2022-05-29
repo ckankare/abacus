@@ -86,6 +86,21 @@ void ReturnStatement::execute(Interpreter& interpreter) const {
     }
 }
 
+void AssignStatement::dump(int indentation, std::stringstream& builder) const {
+    builder << whitespaces(indentation) << fmt::format("Assignment: {}\n", m_name);
+    m_expression->dump(indentation + 2, builder);
+}
+
+void AssignStatement::execute(Interpreter& interpreter) const {
+    auto* variable = interpreter.find_variable(m_name);
+    auto value = m_expression->execute(interpreter);
+    if (variable) {
+        *variable = value;
+    } else {
+        interpreter.define_variable(m_name, std::move(value));
+    }
+}
+
 void Literal::dump(int indentation, std::stringstream& builder) const {
     builder << whitespaces(indentation) << fmt::format("Literal: {}\n", m_value);
 }
